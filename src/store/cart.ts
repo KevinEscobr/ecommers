@@ -8,30 +8,28 @@ export type CartItem = {
   cantidad: number;
 };
 
-type CartState = {
+interface CartState {
   items: CartItem[];
   add: (item: Omit<CartItem, "cantidad">) => void;
   remove: (id: string) => void;
   clear: () => void;
-};
+}
 
-export const useCart = create((set: (fn: (state: CartState) => Partial<CartState>) => void) => ({
+export const useCart = create((set: (partial: Partial<CartState> | ((state: CartState) => Partial<CartState>), replace?: boolean) => void, get: () => CartState) => ({
   items: [],
-  add: (item: Omit<CartItem, "cantidad">) =>
-    set((state: CartState): Partial<CartState> => {
-      const found = state.items.find((i: CartItem) => i.id === item.id);
-      if (found) {
-        return {
-          items: state.items.map((i: CartItem) =>
-            i.id === item.id ? { ...i, cantidad: i.cantidad + 1 } : i
-          ),
-        };
-      }
-      return { items: [...state.items, { ...item, cantidad: 1 }] };
-    }),
-  remove: (id: string) =>
-    set((state: CartState): Partial<CartState> => ({
-      items: state.items.filter((i: CartItem) => i.id !== id),
-    })),
-  clear: () => set((): Partial<CartState> => ({ items: [] })),
+  add: (item: Omit<CartItem, "cantidad">) => {
+    const items = get().items;
+    const idx = items.findIndex((i: CartItem) => i.id === item.id);
+    if (idx !== -1) {
+      set({
+        items: items.map((i: CartItem, iIdx: number) =>
+          iIdx === idx ? { ...i, cantidad: i.cantidad + 1 } : i
+        ),
+      });
+    } else {
+      set({ items: [...items, { ...item, cantidad: 1 }] });
+    }
+  },
+  remove: (id: string) => set({ items: get().items.filter((i: CartItem) => i.id !== id) }),
+  clear: () => set({ items: [] }),
 }));
