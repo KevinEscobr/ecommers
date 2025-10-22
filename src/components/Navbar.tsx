@@ -9,6 +9,7 @@ type NavbarProps = {
   cartCount?: number;
 };
 
+export default function Navbar({ cartCount = 0 }: NavbarProps) {
   const [user, setUser] = useState<any>(null);
   useEffect(() => {
     setUser(getUserFromToken());

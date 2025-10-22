@@ -4,11 +4,10 @@ import { getUserFromToken } from "../../../src/lib/auth";
 import Image from "next/image";
 import Link from "next/link";
 
-interface Props {
-  params: { slug: string };
-}
+import { useParams } from "next/navigation";
 
-  const { slug } = params;
+export default function ProductoPage() {
+  const { slug } = useParams<{ slug: string }>();
   const [producto, setProducto] = useState<any>(null);
   const [error, setError] = useState("");
   const [user, setUser] = useState<any>(null);
@@ -20,7 +19,6 @@ interface Props {
       setError("Debes iniciar sesión para ver este producto.");
       return;
     }
-    // Fetch producto desde API (puedes cambiar la ruta según tu backend)
     fetch(`/api/producto/${slug}`)
       .then(res => res.json())
       .then(data => {
