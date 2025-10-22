@@ -57,8 +57,11 @@ export default function LoginPage() {
           </button>
         </form>
         {error && <div className="mt-4 text-red-600 text-center">{error}</div>}
-        <div className="mt-6 text-center">
-          <Link href="/registro" className="text-blue-600 hover:underline">¿No tienes cuenta? Regístrate</Link>
+        <div className="mt-8 flex flex-col items-center gap-2">
+          <span className="text-zinc-500">¿No tienes cuenta?</span>
+          <Link href="/registro">
+            <button className="bg-green-500 hover:bg-green-600 text-white font-semibold px-6 py-2 rounded transition-colors shadow">Regístrate</button>
+          </Link>
         </div>
       </div>
     </div>
