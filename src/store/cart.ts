@@ -15,10 +15,10 @@ type CartState = {
   clear: () => void;
 };
 
-export const useCart = create<CartState>((set) => ({
+export const useCart = create((set: (fn: (state: CartState) => Partial<CartState>) => void) => ({
   items: [],
   add: (item: Omit<CartItem, "cantidad">) =>
-    set((state: CartState) => {
+    set((state: CartState): Partial<CartState> => {
       const found = state.items.find((i: CartItem) => i.id === item.id);
       if (found) {
         return {
@@ -30,8 +30,8 @@ export const useCart = create<CartState>((set) => ({
       return { items: [...state.items, { ...item, cantidad: 1 }] };
     }),
   remove: (id: string) =>
-    set((state: CartState) => ({
+    set((state: CartState): Partial<CartState> => ({
       items: state.items.filter((i: CartItem) => i.id !== id),
     })),
-  clear: () => set(() => ({ items: [] })),
+  clear: () => set((): Partial<CartState> => ({ items: [] })),
 }));
