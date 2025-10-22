@@ -1,4 +1,6 @@
-import { supabase } from "../../../src/lib/supabaseClient";
+"use client";
+import { useEffect, useState } from "react";
+import { getUserFromToken } from "../../../src/lib/auth";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -6,27 +8,45 @@ interface Props {
   params: { slug: string };
 }
 
-export default async function ProductoPage({ params }: Props) {
   const { slug } = params;
-  // Buscar producto por id o slug (ajusta según tu modelo)
-  const { data: producto, error } = await supabase
-    .from("productos")
-    .select("id, nombre, precio, descripcion, imagen_url")
-    .eq("id", slug)
-    .single();
+  const [producto, setProducto] = useState<any>(null);
+  const [error, setError] = useState("");
+  const [user, setUser] = useState<any>(null);
 
-  if (error || !producto) {
+  useEffect(() => {
+    const u = getUserFromToken();
+    setUser(u);
+    if (!u) {
+      setError("Debes iniciar sesión para ver este producto.");
+      return;
+    }
+    // Fetch producto desde API (puedes cambiar la ruta según tu backend)
+    fetch(`/api/producto/${slug}`)
+      .then(res => res.json())
+      .then(data => {
+        if (data.error) setError(data.error);
+        else setProducto(data);
+      })
+      .catch(() => setError("Error al cargar el producto"));
+  }, [slug]);
+
+  if (error) {
     return (
       <div className="p-8 text-red-600 flex flex-col items-center">
         <span className="text-4xl mb-2">😢</span>
-        <div>Producto no encontrado.</div>
-        <Link href="/" className="mt-4 text-blue-600 hover:underline">Volver a la tienda</Link>
+        <div>{error}</div>
+        <Link href="/login" className="mt-4 text-blue-600 hover:underline">Ir al login</Link>
       </div>
     );
   }
 
+  if (!producto) {
+    return <div className="p-8 text-center">Cargando producto...</div>;
+  }
+
   return (
     <div className="max-w-3xl mx-auto py-10 animate-fade-in">
+      <div className="mb-4 text-right text-sm text-zinc-500">Bienvenido, {user?.email}</div>
       <Link href="/" className="text-blue-600 hover:underline mb-6 inline-block text-lg font-medium">← Volver a la tienda</Link>
       <div className="bg-white dark:bg-zinc-900 rounded-2xl shadow-2xl p-10 flex flex-col md:flex-row gap-8 items-center">
         <div className="relative">

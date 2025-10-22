@@ -2,12 +2,17 @@
 "use client";
 import Link from "next/link";
 import { ShoppingCart } from "lucide-react";
+import { useEffect, useState } from "react";
+import { getUserFromToken } from "../lib/auth";
 
 type NavbarProps = {
   cartCount?: number;
 };
 
-export default function Navbar({ cartCount = 0 }: NavbarProps) {
+  const [user, setUser] = useState<any>(null);
+  useEffect(() => {
+    setUser(getUserFromToken());
+  }, []);
   return (
     <nav className="w-full bg-white dark:bg-zinc-900 shadow-sm py-4 px-6 flex items-center justify-between mb-8">
       <div className="flex items-center gap-4">
@@ -16,9 +21,13 @@ export default function Navbar({ cartCount = 0 }: NavbarProps) {
         </Link>
       </div>
       <div className="flex items-center gap-6">
-        <Link href="/login" className="text-base font-medium text-zinc-700 dark:text-zinc-200 hover:underline">
-          Login/Registro
-        </Link>
+        {user?.email ? (
+          <span className="text-base font-medium text-green-700 dark:text-green-400">{user.email}</span>
+        ) : (
+          <Link href="/login" className="text-base font-medium text-zinc-700 dark:text-zinc-200 hover:underline">
+            Login/Registro
+          </Link>
+        )}
         <Link href="/carrito" className="relative flex items-center">
           <ShoppingCart className="w-6 h-6 text-zinc-700 dark:text-zinc-200" />
           {cartCount > 0 && (
